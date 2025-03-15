@@ -38,6 +38,20 @@ public static class PiFinder {
                 ""
             )
         },
+        {
+            "sort-type",
+            new Option(
+                "The method used to order the approximations (options are: sum, accuracy)",
+                "accuracy"
+            )
+        },
+        {
+            "sort-mode",
+            new Option(
+                "The mode used to order the approximations (ascending or descending)",
+                "ascending"
+            )
+        },
     };
     public static void Main(string[] arguments)
     {
@@ -100,7 +114,26 @@ public static class PiFinder {
             }
         }
         
-        validApproximations.Sort((t1, t2) => t1.Item3.CompareTo(t2.Item3));
+        string sortType = Convert.ToString(options["sort-type"].value) ?? string.Empty;
+        string sortMode = Convert.ToString(options["sort-mode"].value) ?? string.Empty;
+
+        if(sortType == "sum") {
+            if(sortMode == "descending") {
+                validApproximations.Sort((t1, t2) => (t1.Item1 + t1.Item2).CompareTo(t2.Item1 + t2.Item2));
+            }
+            else {
+                validApproximations.Sort((t1, t2) => -(t1.Item1 + t1.Item2).CompareTo(t2.Item1 + t2.Item2));
+            }
+        }
+        else {
+            if(sortMode == "ascending") {
+                validApproximations.Sort((t1, t2) => t1.Item3.CompareTo(t2.Item3));
+            }
+            else {
+                validApproximations.Sort((t1, t2) => -t1.Item3.CompareTo(t2.Item3));
+            }
+        }
+
         string outputFile = Convert.ToString(options["output"].value) ?? string.Empty;
         StringBuilder output = new StringBuilder();
         foreach (var approximation in validApproximations)
