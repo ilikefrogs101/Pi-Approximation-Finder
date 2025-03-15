@@ -28,7 +28,7 @@ public static class PiFinder {
             "pi",
             new Option(
                 "The value of pi you are searching for approximations for (e.g. extra decimal points)",
-                3.14159265358979
+                3.1415926535897932
             )
         },
     };
