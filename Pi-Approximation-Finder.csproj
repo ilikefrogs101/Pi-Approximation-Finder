@@ -6,6 +6,7 @@
     <RootNamespace>Pi_Approximation_Finder</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>IDE1006;IDE0090</NoWarn>
   </PropertyGroup>
 
 </Project>

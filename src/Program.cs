@@ -31,6 +31,13 @@ public static class PiFinder {
                 3.1415926535897932
             )
         },
+        {
+            "output",
+            new Option(
+                "The file to output the calculated approximations to",
+                ""
+            )
+        },
     };
     public static void Main(string[] arguments)
     {
@@ -60,13 +67,14 @@ public static class PiFinder {
         for(int i = 0; i < options.Count; ++i)
         {
             KeyValuePair<string, Option> _option = options.ElementAt(i);
-            helpMessageBuilder.AppendLine($"--{_option.Key}:\n{_option.Value.description}\nDefault: {_option.Value.value}");
+            helpMessageBuilder.AppendLine($"--{_option.Key}:\n{_option.Value.description}\nDefault: {_option.Value.value ?? "None"}");
         }
         Console.Write(helpMessageBuilder.ToString());
     }
 
     private static void RunCalculations() {
         HashSet<ulong> validNumerators = [];
+        List<Tuple<double, double, double>> validApproximations = [];
 
         ulong startNumber = Convert.ToUInt64(options["start-number"].value);
         ulong endNumber = Convert.ToUInt64(options["end-number"].value);
@@ -76,18 +84,37 @@ public static class PiFinder {
         for(ulong _denominator = startNumber; _denominator <= endNumber; ++_denominator) {
             double _numerator = pi * _denominator;
             double _intNumerator = Math.Round(_numerator);
-            double _accuracy = Math.Abs(_numerator - _intNumerator);
+            double _accuracy = Math.Abs(pi - (_intNumerator/_denominator));
 
             if(_accuracy <= accuracy) {
                 ulong GCD = Utils.GCD((ulong)_intNumerator, _denominator);
-                ulong _nGCD = (ulong)_intNumerator / GCD;
+                ulong normalisedNumerator = (ulong)_intNumerator / GCD;
 
-                if(validNumerators.Contains(_nGCD)) {
+                if(validNumerators.Contains(normalisedNumerator)) {
                     continue;
                 }
-                validNumerators.Add(_nGCD);
-                Console.WriteLine($"{_intNumerator}/{_denominator} is a valid pi approximation to an accuracy of {_accuracy}");
+                validNumerators.Add(normalisedNumerator);
+
+                Tuple<double, double, double> newApproximation = new(_intNumerator, _denominator, _accuracy);
+                validApproximations.Add(newApproximation);
             }
+        }
+        
+        validApproximations.Sort((t1, t2) => t1.Item3.CompareTo(t2.Item3));
+        string outputFile = Convert.ToString(options["output"].value) ?? string.Empty;
+        StringBuilder output = new StringBuilder();
+        foreach (var approximation in validApproximations)
+        {
+            string nonSciAccuracy = approximation.Item3.ToString("F99").TrimEnd('0');
+            if(nonSciAccuracy.Length == 2) {
+                nonSciAccuracy = nonSciAccuracy.Replace(".", " ");
+            }
+            Console.WriteLine($"{approximation.Item1}/{approximation.Item2} is a valid pi approximation with an inaccuracy of {nonSciAccuracy}");
+            output.AppendLine($"{approximation.Item1},{approximation.Item2},{nonSciAccuracy}");
+        }
+        if (!string.IsNullOrEmpty(outputFile))
+        {
+            File.WriteAllText(outputFile, output.ToString());
         }
     }
 }
