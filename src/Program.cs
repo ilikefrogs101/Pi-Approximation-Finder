@@ -118,7 +118,7 @@ public static class PiFinder {
         string sortMode = Convert.ToString(options["sort-mode"].value) ?? string.Empty;
 
         if(sortType == "sum") {
-            if(sortMode == "descending") {
+            if(sortMode == "ascending") {
                 validApproximations.Sort((t1, t2) => (t1.Item1 + t1.Item2).CompareTo(t2.Item1 + t2.Item2));
             }
             else {
